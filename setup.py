@@ -9,6 +9,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        pbs=myscript:main
+        pbs=pbs:main
     ''',
 )
