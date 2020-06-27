@@ -62,7 +62,7 @@ def _create_data_directory(name, path=None):#Redundant
 @click.option('-d', '--data', type=bool, help='Create a folder for data')
 @new.command()
 def paper(name: str, code: bool, data: bool):
-    """Create a new paper directory template, with options to create a Code and Data folder"""
+    """Create a new paper dir template, options to add Code & Data folder"""
     if not name:
         click.echo("No paper name provided")
         name = click.prompt(
@@ -91,6 +91,7 @@ def paper(name: str, code: bool, data: bool):
 @click.option("-n", "--name", type=str, help="Create a new code directory")
 @new.command()
 def code(name: str):
+    """Create a new code dir template"""
     if not name:
         click.echo("No name provided")
         name = click.prompt(
@@ -106,6 +107,7 @@ def code(name: str):
 @click.option("-n", "--name", type=str, help="Create a new data directory")
 @new.command()
 def data(name: str):
+    """Create a new data dir template"""
     if not name:
         click.echo("No name provided")
         name = click.prompt(
