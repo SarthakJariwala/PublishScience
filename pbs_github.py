@@ -15,7 +15,6 @@ def github_user():
         username = click.prompt(
             click.style("GitHub Username ", fg='blue')
             )
-        print(type(username))
         password = click.prompt(
             click.style("GitHub Password ", fg='blue'),
             hide_input=True)
