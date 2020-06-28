@@ -6,6 +6,7 @@ setup(
     py_modules=['myscript'],
     install_requires=[
         'Click',
+        'PyGithub'
     ],
     entry_points='''
         [console_scripts]
