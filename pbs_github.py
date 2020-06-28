@@ -4,7 +4,7 @@ import os
 import sys
 import github
 from github import Github
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 def github_user():
     # load_dotenv()
