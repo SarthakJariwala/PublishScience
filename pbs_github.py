@@ -60,3 +60,40 @@ def github_user():
             github_user()
         
         return user
+
+def select_license(license: str):
+    _licenses = {
+        "1":'mit',
+        "2":"lgpl-3.0",
+        "3":"mpl-2.0",
+        "4":"agpl-3.0",
+        "5":"apache-2.0",
+        "6":"gpl-3.0",
+        "7":"unlicense",
+        "8":"no license" #github.GithubObject.NotSet
+    }
+
+    if not license or license not in _licenses.keys() or license not in _licenses.values():
+        click.echo(
+            click.style("What license would you like to use?", fg="blue")
+        )
+        for k,v in _licenses.items():
+            click.echo(
+                click.style(f"   {k} : {v.upper()}".format(), fg="blue")
+            )
+        
+        key = click.prompt('\nEnter a number from above ', default="8")
+
+        if key not in _licenses.keys(): # TODO ask user again if invalid
+            click.echo(click.style("Invalid selection! Setting no license", fg="red"))
+            key = "8"
+        
+        if key == "8":
+            selected_license = github.GithubObject.NotSet
+        else:
+            selected_license = _licenses[key]
+        
+        return selected_license
+    
+    else:
+        return license

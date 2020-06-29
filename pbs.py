@@ -1,8 +1,11 @@
 import click
 import os
 import subprocess
+import git
 import github
-from pbs_github import github_user
+from pbs_github import github_user, select_license
+from pbs_python import new_python_project
+from utils import changedir
 # from quick import gui_option
 
 # @gui_option
@@ -145,17 +148,7 @@ def repo(repo_name: str):
 @click.option("-l", "--license", type=str, help="Repository license")
 @new.command()
 def repo(repo_name: str, desc: str, license: str):
-    """Create new repository"""
-
-    _licenses = {
-        "MIT":'mit',
-        "LGPL v3":"lgpl-3.0",
-        "MPL v2":"mpl-2.0",
-        "AGPL v3":"agpl-3.0",
-        "No License":"unlicense",
-        "Apache v2":"apache-2.0",
-        "GPL v3":"gpl-3.0"
-    }
+    """Create new repository on GitHub"""
 
     user = github_user()
 
@@ -165,54 +158,75 @@ def repo(repo_name: str, desc: str, license: str):
                 "Enter your repository name ", 
                 fg="blue"
             ),
-            type=str, default="My-pbs-created-repo"
+            type=str, default="New PBS Project"
         )
     
     if " " in repo_name:
         repo_name = repo_name.replace(" ", "-")
-
-    description = desc if desc else github.GithubObject.NotSet
-
-    if not license or license not in _licenses.keys():
-        click.echo(
-            click.style("What license would you like to use?", fg="blue")
+    
+    if not desc:
+        description = click.prompt(
+            click.style(f"Add description for {repo_name}".format(), fg='blue'),
+            default=f"Description for {repo_name}".format()
         )
-        for k,v in _licenses.items():
-            click.echo(
-                click.style(f"   {k}".format(), fg="blue")
-            )
-        
-        key = click.prompt('\nEnter from above ', default="MIT")
+    else:
+        description = desc
 
-        if key not in _licenses.keys(): # TODO ask user again if invalid
-            key = "MIT"
-            click.echo("Invalid selection, using MIT")
+    selected_license = select_license(license)
     
     click.echo(
-        click.style(f"Creating new repository {repo_name}".format(), fg="blue")
+        click.style(f"Creating new repository {repo_name} on GitHub".format(), fg="blue")
     )
     
     user.create_repo(
         name=repo_name,
         description=description,
-        license_template=_licenses[key],
+        license_template=selected_license,
         gitignore_template="Python"
     ) # TODO allow for other languages
     
     click.echo(click.style(f"Created {repo_name} on GitHub".format(), fg="green"))
 
-    click.echo(click.style("Cloning to local machine", fg="blue"))
+    click.echo(click.style(f"Cloning {repo_name} to local machine".format(), fg="blue"))
 
-    subprocess.call(
-        [f"git clone https://github.com/{user.login}/{repo_name}.git".format()], 
-        shell=True
-    )
+    g = git.cmd.Git(os.getcwd())
+    g.execute(["git", "clone", f"https://github.com/{user.login}/{repo_name}.git".format()])
 
     click.echo(click.style(
-        "Success! Repository now available on local machine", fg="green"
+        f"Success! {repo_name} now available on local machine".format(), fg="green"
         ))
+    
+    # ans = click.prompt(
+    #     click.style(
+    #         f"Do you want to create a Python project template for {repo_name}?".format(), 
+    #         fg="blue"),
+    #     type=click.Choice(['y','n'], case_sensitive=False), 
+    #     show_choices=True, default='n'
+    # )
 
+    # if ans.lower() == 'y':
+    #     with changedir(f"{repo_name}".format()):
+    #         new_python_project(repo_name, None)
+    #         click.echo(click.style("Python project created!", fg='green'))
+
+    #         ans = click.prompt(
+    #             click.style("Push additions to GitHub?", fg="blue"),
+    #             type=click.Choice(['y','n'], case_sensitive=False), 
+    #             show_choices=True, default='n')
+
+        
+        # if ans.lower() == 'y':
+
+
+@click.option('-n', '--name', type=str, help="python project name")
+@click.option('-a', '--author', type=str, help="project author names")
 @new.command()
+def pyproject(name: str, author: str):
+    """Create new structured python project with template""" 
+    new_python_project(name, author)
+
+@main.command()
 def user():
+    "Shows GitHub user"
     user = github_user()
     print(user.login)
